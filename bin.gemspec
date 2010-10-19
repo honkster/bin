@@ -2,7 +2,7 @@
 require File.expand_path('../lib/bin/version', __FILE__)
 
 Gem::Specification.new do |s|
-  s.name         = 'bin'
+  s.name         = 'honkster-bin'
   s.homepage     = 'http://github.com/jnunemaker/bin'
   s.summary      = 'ActiveSupport MongoDB Cache store.'
   s.require_path = 'lib'
