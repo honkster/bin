@@ -21,6 +21,7 @@ module Bin
         collection.save(doc)
       end
     end
+    alias_method :write_entry, :write
 
     def read(key, options=nil)
       super do
@@ -29,6 +30,7 @@ module Bin
         end
       end
     end
+    alias_method :read_entry, :read
 
     def delete(key, options=nil)
       super do
