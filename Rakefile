@@ -9,10 +9,6 @@ namespace :spec do
     t.verbose = true
   end
 
-  task :as2 do
-    sh 'ACTIVE_SUPPORT_VERSION="<= 2.3.8" rake spec:all'
-  end
-
   task :as3 do
     sh 'ACTIVE_SUPPORT_VERSION=">= 3.0.0.beta3" rake spec:all'
   end
@@ -20,7 +16,6 @@ end
 
 desc 'Runs all specs against Active Support 2 and 3'
 task :spec do
-  Rake::Task['spec:as2'].invoke
   Rake::Task['spec:as3'].invoke
 end
 

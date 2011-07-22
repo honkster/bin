@@ -1,4 +1,6 @@
-gem 'activesupport', ENV['ACTIVE_SUPPORT_VERSION']
+require "rubygems"
+require "bundler"
+Bundler.setup
 
 $:.unshift(File.expand_path('../../lib', __FILE__))
 

@@ -1,6 +1,6 @@
 # encoding: UTF-8
 module Bin
-  class Store < Compatibility
+  class Store < ActiveSupport::Cache::Store
     attr_reader :collection, :options
 
     def initialize(collection, options={})
@@ -11,8 +11,9 @@ module Bin
       @expires_in ||= options[:expires_in] || 1.year
     end
 
-    def write_entry(key, value, options={})
+    def write_entry(key, entry, options={})
       key = key.to_s
+      value = entry.value
       expires = Time.now.utc + ((options && options[:expires_in]) || expires_in)
       raw     = !!options[:raw]
       value   = raw ? value : BSON::Binary.new(Marshal.dump(value))
@@ -22,7 +23,8 @@ module Bin
 
     def read_entry(key, options=nil)
       if doc = collection.find_one(:_id => key.to_s, :expires_at => {'$gt' => Time.now.utc})
-        doc['raw'] ? doc['value'] : Marshal.load(doc['value'].to_s)
+        value = doc['raw'] ? doc['value'] : Marshal.load(doc['value'].to_s)
+        value.is_a?(ActiveSupport::Cache::Entry) ? value : ActiveSupport::Cache::Entry.new(value, options)
       end
     end
 
@@ -33,9 +35,11 @@ module Bin
     end
 
     def delete_matched(matcher, options=nil)
-      super do
-        collection.remove(:_id => matcher)
-      end
+      collection.remove(:_id => matcher)
+    end
+
+    def delete_entry(key, options)
+      collection.remove(:_id => key.to_s)
     end
 
     def exist?(key, options=nil)
@@ -45,15 +49,11 @@ module Bin
     end
 
     def increment(key, amount=1)
-      super do
-        counter_key_upsert(key, amount)
-      end
+      counter_key_upsert(key, amount)
     end
 
     def decrement(key, amount=1)
-      super do
-        counter_key_upsert(key, -amount.abs)
-      end
+      counter_key_upsert(key, -amount.abs)
     end
 
     def clear
